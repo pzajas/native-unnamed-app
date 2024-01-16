@@ -5,6 +5,7 @@ import { DrawerContent } from './DrawerContent'
 import { UpperMenu } from '../components/UpperMenu'
 import { AboutScreen } from '../../screens/about/AboutScreen'
 import { ContactScreen } from '../../screens/contact/ContactScreen'
+import { LoginScreen } from '../../screens/auth/LoginScreen'
 
 export const OnlineDrawerNavigation = () => {
   const Drawer = createDrawerNavigator()
@@ -23,7 +24,7 @@ export const OnlineDrawerNavigation = () => {
         header: () => <UpperMenu />,
       }}
     >
-      <Drawer.Screen name="OnlineScreen" component={HomeScreen} />
+      <Drawer.Screen name="OnlineScreen" component={LoginScreen} />
       <Drawer.Screen name="HomeScreen" component={HomeScreen} />
       <Drawer.Screen name="AboutScreen" component={AboutScreen} />
       <Drawer.Screen name="ContactScreen" component={ContactScreen} />

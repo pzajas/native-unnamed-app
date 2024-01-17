@@ -1,10 +1,10 @@
-import { combineReducers } from 'redux'
-import exampleReducer from '../features/exampleSlice'
+// import { combineReducers } from 'redux'
+// // import exampleReducer from '../features/exampleSlice'
 
-const rootReducer = combineReducers({
-  exampleData: exampleReducer,
-})
+// const rootReducer = combineReducers({
+//   exampleData: exampleReducer,
+// })
 
-export type RootState = ReturnType<typeof rootReducer>
+// export type RootState = ReturnType<typeof rootReducer>
 
-export default rootReducer
+// export default rootReducer

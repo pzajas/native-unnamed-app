@@ -1,65 +1,107 @@
 import React from 'react'
-import { View, Text, StyleSheet, TextInput, Button, ActivityIndicator, KeyboardAvoidingView } from 'react-native'
-import { useState } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Image,
+  SafeAreaView,
+} from 'react-native'
+import { useForm, Controller } from 'react-hook-form'
 import { FIREBASE_AUTH } from '../../Firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { Button } from 'react-native-paper'
 
 export const LoginScreen = () => {
-  const [email, setEmail] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
-
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm()
+  const [loading, setLoading] = React.useState(false)
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
   const auth = FIREBASE_AUTH
 
-  const handleLoginUser = async () => {
+  const onSubmit = async (data) => {
     setLoading(true)
 
     try {
-      const response = await signInWithEmailAndPassword(auth, email, password)
-      console.log(response)
+      if (data.action === 'login') {
+        const response = await signInWithEmailAndPassword(auth, data.email, data.password)
+        console.log(response)
+      } else if (data.action === 'register') {
+        const response = await createUserWithEmailAndPassword(auth, data.email, data.password)
+        console.log(response)
+      }
     } catch (error) {
       console.log(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRegisterUser = async () => {
-    setLoading(true)
-
-    try {
-      const response = await createUserWithEmailAndPassword(auth, email, password)
-      console.log(response)
-    } catch (error) {
-      console.log(error)
+      setError('password', { type: 'manual', message: 'Invalid email or password' })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <View style={styles.screenContainer}>
-      <Text>Login Screen</Text>
-      <KeyboardAvoidingView behavior="padding">
-        <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={(text) => setEmail(text)} />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry={true}
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-        />
+    <SafeAreaView>
+      <View style={styles.screenContainer}>
+        <KeyboardAvoidingView behavior="padding">
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={value}
+                onChangeText={(text) => {
+                  setEmail(text)
+                  onChange(text)
+                }}
+              />
+            )}
+            name="email"
+            rules={{ required: 'Email is required', pattern: /^\S+@\S+$/i }}
+            defaultValue=""
+          />
 
-        {loading ? (
-          <ActivityIndicator size={'large'} color={'steelblue'} />
-        ) : (
-          <>
-            <Button title="Login" onPress={handleLoginUser} />
-            <Button title="Register" onPress={handleRegisterUser} />
-          </>
-        )}
-      </KeyboardAvoidingView>
-    </View>
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry={true}
+                value={value}
+                onChangeText={(text) => {
+                  setPassword(text)
+                  onChange(text)
+                }}
+              />
+            )}
+            name="password"
+            rules={{ required: 'Password is required' }}
+            defaultValue=""
+          />
+
+          {errors.password && <Text style={{ color: 'red' }}>{errors.password.message}</Text>}
+
+          {loading ? (
+            <ActivityIndicator size={'large'} color={'steelblue'} />
+          ) : (
+            <>
+              <Button title="Login" onPress={handleSubmit(() => onSubmit({ action: 'login', email, password }))} />
+              <Button
+                title="Register"
+                onPress={handleSubmit(() => onSubmit({ action: 'register', email, password }))}
+              />
+            </>
+          )}
+        </KeyboardAvoidingView>
+      </View>
+    </SafeAreaView>
   )
 }
 
@@ -77,5 +119,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 10,
+  },
+  image: {
+    width: 300,
+    height: 300,
+  },
+  startButtonContainer: {
+    borderRadius: 8,
+    justifyContent: 'flex-end',
+    marginTop: 100,
   },
 })
